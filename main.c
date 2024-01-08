@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <string.h>
 #include "fparam.h"
+#include "logging.h"
 
 int main(int argc, char **argv)
 {
@@ -24,8 +25,7 @@ int main(int argc, char **argv)
 			printf("       ./f1ntegrity -r /path/to/target/directory\n");
 			exit(0);
 	}
-	char t[50];
-	get_timestamp(t, sizeof(t));
-	printf("%s\n", t);
+
+	init_logging();
 	return 0;
 }

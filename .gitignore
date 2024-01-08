@@ -2,3 +2,4 @@
 *.s
 *.o
 .DS_Store
+logging/*

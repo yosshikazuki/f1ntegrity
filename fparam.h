@@ -3,12 +3,12 @@
 
 #include "/opt/homebrew/Cellar/openssl@3/3.2.0/include/openssl/evp.h"
 
-#define MAXLENGTH 1024
+#define MAXLENGTH 100
 #define TABLESIZE 100
 
 struct Fparam
 {
-	char filename[100];
+	char filename[MAXLENGTH];
 	char hashval[EVP_MAX_MD_SIZE*2+1];
 };
 
@@ -22,7 +22,6 @@ struct Hashtable *insert_record(struct Hashtable *t, char filename[], char hashv
 struct Hashtable *create_table();
 int create_index(struct Hashtable *t, char *hashval, int byte_size);
 void create_hash(FILE *file, char *str);
-void get_timestamp(char str[], size_t size);
 void validate_input(const char *arg, const char *arg2);
 void search_dir(struct Hashtable *t, const char *dirname);
 void check_file_integrity(struct Hashtable *t, const char *arg, char *fname);

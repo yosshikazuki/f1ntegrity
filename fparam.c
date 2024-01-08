@@ -2,7 +2,6 @@
 #include <string.h>
 #include <stdlib.h>
 #include <assert.h>
-#include <time.h>
 #include <sys/stat.h>
 #include <dirent.h>
 #include "fparam.h"
@@ -125,7 +124,7 @@ void create_hash(FILE *file, char *str)
 	const EVP_MD *md = EVP_sha256();
 	unsigned char md_value[EVP_MAX_MD_SIZE];
 	unsigned int md_len;
-	char buffer[4096];
+	char buffer[1024];
 	size_t bytes_read;
 
 	OpenSSL_add_all_digests();
@@ -147,10 +146,3 @@ void create_hash(FILE *file, char *str)
 }
 
 
-void get_timestamp(char str[], size_t size)
-{
-	time_t rawtime;
-	rawtime = time(NULL);
-	struct tm *tm = localtime(&rawtime);
-	strftime(str, size, "%Y/%m/%d %H:%M:%S", tm);
-}
