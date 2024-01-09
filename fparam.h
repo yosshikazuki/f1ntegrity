@@ -23,7 +23,8 @@ struct Hashtable *create_table();
 int create_index(struct Hashtable *t, char *hashval, int byte_size);
 void create_hash(FILE *file, char *str);
 void validate_input(const char *arg, const char *arg2);
-void search_dir(struct Hashtable *t, const char *dirname);
-void check_file_integrity(struct Hashtable *t, const char *arg, char *fname);
+void print_error();
+void search_dir(struct Hashtable *t, const char *dirname, int lflag);
+void check_file_integrity(struct Hashtable *t, const char *arg, char *fname, int lflag);
 
 #endif
