@@ -24,6 +24,7 @@ int main(int argc, char **argv)
 			break;
 	
 		default:
+			printf("switch statement\n");
 			print_error();
 	}
 

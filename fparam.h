@@ -6,6 +6,8 @@
 #define MAXLENGTH 100
 #define TABLESIZE 100
 
+typedef void (*CreateHash)(void *, char *);
+
 struct Fparam
 {
 	char filename[MAXLENGTH];
@@ -21,10 +23,12 @@ void sstrcpy(char *dest, const char *src, size_t size);
 struct Hashtable *insert_record(struct Hashtable *t, char filename[], char hashval[], int index);
 struct Hashtable *create_table();
 int create_index(struct Hashtable *t, char *hashval, int byte_size);
-void create_hash(FILE *file, char *str);
+void file_hash(void *file, char *str);
+void string_hash(void *input, char *str);
 void validate_input(const char *arg, const char *arg2);
 void print_error();
 void search_dir(struct Hashtable *t, const char *dirname, int lflag);
 void check_file_integrity(struct Hashtable *t, const char *arg, char *fname, int lflag);
+void compare_hash(char *filename, char *hashval);
 
 #endif
