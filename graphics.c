@@ -22,5 +22,5 @@ void init_window()
 	app = gtk_application_new(NULL, G_APPLICATION_DEFAULT_FLAGS);
 	g_signal_connect(G_OBJECT (app), "activate", G_CALLBACK (on_activate), NULL);
 	g_application_run(G_APPLICATION (app), 0, NULL);
-
+	g_object_unref(app);
 }
