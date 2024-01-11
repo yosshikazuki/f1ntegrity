@@ -3,7 +3,7 @@ CFLAGS = -fverbose-asm -Wall -Werror -Wpedantic $(shell pkg-config --cflags open
 LIBS = $(shell pkg-config --libs --cflags openssl)
 
 TARGET = f1ntegrity
-SOURCES = main.c fparam.c logging.c
+SOURCES = main.c fparam.c logging.c utility.c
 OBJ = $(SOURCES:.c=.o)
 ASSEMBLY_FILE = $(TARGET).s
 

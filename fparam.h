@@ -5,13 +5,14 @@
 
 #define MAXLENGTH 100
 #define TABLESIZE 100
+#define HASHSIZE EVP_MAX_MD_SIZE * 2 + 1
 
 typedef void (*CreateHash)(void *, char *);
 
 struct Fparam
 {
 	char filename[MAXLENGTH];
-	char hashval[EVP_MAX_MD_SIZE*2+1];
+	char hashval[HASHSIZE];
 };
 
 struct Hashtable
@@ -19,7 +20,6 @@ struct Hashtable
 	struct Fparam *records[TABLESIZE];
 };
 
-void sstrcpy(char *dest, const char *src, size_t size);
 struct Hashtable *insert_record(struct Hashtable *t, char filename[], char hashval[], int index);
 struct Hashtable *create_table();
 int create_index(struct Hashtable *t, char *hashval, int byte_size);

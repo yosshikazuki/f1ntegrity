@@ -20,7 +20,6 @@ int init_logging()
 	{
 		if (stat("logging/log.txt", &st) == 0 && S_ISREG(st.st_mode))
 		{
-			printf("log file already exists\n");
 			flag = 1;
 			return flag;
 		}

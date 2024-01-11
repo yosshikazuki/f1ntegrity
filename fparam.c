@@ -5,6 +5,7 @@
 #include <dirent.h>
 #include "fparam.h"
 #include "logging.h"
+#include "utility.h"
 
 /**
  * @brief Checks the integrity of a file and updates the hashtable.
@@ -22,7 +23,7 @@
 void check_file_integrity(struct Hashtable *t, const char *arg, char *fname, int lflag)
 {
 	char filename[MAXLENGTH]; 
-	char hash_0x[EVP_MAX_MD_SIZE * 2 + 1], hash_1x[EVP_MAX_MD_SIZE * 2 + 1];
+	char hash_0x[HASHSIZE], hash_1x[HASHSIZE];
 	CreateHash hash[] = {&file_hash, &string_hash};
 	if (fname == NULL)
 	{
@@ -30,16 +31,14 @@ void check_file_integrity(struct Hashtable *t, const char *arg, char *fname, int
 	}
 	else
 	{
-		arg[-1] == '/' ? snprintf(filename, sizeof(filename), "%s%s", arg, fname) : snprintf(filename, sizeof(filename), "%s/%s", arg, fname);
+		arg[-1] == '/' ? snprintf(filename, sizeof(filename), "%s/%s", arg, fname) : snprintf(filename, sizeof(filename), "%s%s", arg, fname);
 	}
 	FILE *file = fopen(filename, "rb");
 	hash[0](file, hash_0x);
 	hash[1](filename, hash_1x);
 	int byte_size = strlen(hash_0x) / 2;
 	int index = create_index(t, hash_1x, byte_size);
-	printf("index: %d (%d byte SHA256) - %s\n", index, byte_size, hash_1x);
 	t = insert_record(t, filename, hash_0x, index);
-	printf("%s: %s\n", t->records[index]->filename, t->records[index]->hashval);
 	log_result(t, index, lflag);
 }
 
@@ -64,7 +63,6 @@ void search_dir(struct Hashtable *t, const char *dirname, int lflag)
 	{
 		if (dentry->d_type == DT_REG)
 		{
-			printf("%s is a directory\n", dirname);
 			check_file_integrity(t, dirname, dentry->d_name, lflag);
 		}
 	}
@@ -90,7 +88,6 @@ void validate_input(const char *arg, const char *arg2)
 		// check if arg2 is null
 		if (arg2 == NULL)
 		{
-			printf("strcmp\n");
 			print_error();
 			exit(0);
 		}
@@ -108,7 +105,6 @@ void validate_input(const char *arg, const char *arg2)
 		stat(arg, &fstat);
 		if (S_ISREG(fstat.st_mode) != 1)
 		{
-			printf("S_ISREG\n");
 			print_error();
 			exit(0);
 		}
@@ -120,18 +116,6 @@ void print_error()
 	printf("Usage: ./f1ntegrity /path/to/target/file\n");
 	printf("       ./f1ntegrity -r /path/to/target/directory\n");
 	exit(0);
-}
-
-
-void sstrcpy(char *dest, const char *src, size_t size)
-{
-	while (*src != '\0' && size > 1)
-	{
-		*dest++ = *src++;
-		size--;
-	}
-
-	*dest = '\0';
 }
 
 /**
@@ -159,73 +143,99 @@ struct Hashtable *insert_record(struct Hashtable *t, char filename[], char hashv
 	return t;
 }
 
-char *sstrstr(char *string, char *substring)
-{
-	register char *a, *b;
-	b = substring;
-	if (*b == 0)
-	{
-		return string;
-	}
-	for (; *string != 0; string++)
-	{
-		if (*string != *b)
-		{
-			continue;
-		}
-		a = string;
-		while (1)
-		{
-			if (*b == 0)
-			{
-				size_t length = a - (string-1);
-				char *result = (char *)malloc(length+1);
-				sstrcpy(result, string, length);
-				result[length] = '\0';
-				return result;
-			}
-			if (*a++ != *b++) break;
-		}
-		b = substring;
-	}
-	return NULL;
-}
-
-
+/**
+ * @brief Compares a filename and hash value with log file entries.
+ *
+ * This function reads each line from the specified log file, extracts the
+ * filename and hash value information, and compares them with the provided
+ * parameters. It determines whether the file has been modified, remains
+ * unmodified, or if the specified file entry is not found.
+ *
+ * @param filename The filename to be compared against log entries.
+ * @param hashval The hash value to be compared against log entries.
+ *
+ * @note The function assumes that the log file is located at "logging/log.txt".
+ * Ensure the file path is accurate.
+ *
+ * @note The function prints messages to the standard output indicating the
+ * result of the comparison:
+ * - "modified file" if the filename matches but the hash values differ.
+ * - "found unmodified" if both filename and hash values match.
+ * - "not found" if no matching entry is found.
+ *
+ * @note The function uses custom string manipulation functions (`sstrstr` and
+ * `sstrcpy`). Ensure these functions are defined and included in your code.
+ *
+ * @note Free the memory allocated for the buffer after using the function.
+ * ```c
+ * free(buffer);
+ * ```
+ *
+ * @note Usage Example:
+ * ```c
+ * char *filename = "abc.txt";
+ * char *hashval = "497b22d4e86a3caa9f5baa24435a99ac1154094a0b9302b9bcd9d6544d6efbe9";
+ * compare_hash(filename, hashval);
+ * ```
+ *
+ * @return Void.
+ */
 void compare_hash(char *filename, char *hashval)
 {
 	FILE *file = fopen("logging/log.txt", "r");
 	char *buffer = NULL;
 	size_t bufsize = 0;
 	int line_count = 0;
+	int modified = 0, unmodified = 0;
 	while (getline(&buffer, &bufsize, file) != -1)
 	{
 		line_count++;
 		char *filename_search = sstrstr(buffer,filename);
 		char *hashval_search = sstrstr(buffer, hashval);
 
-		if (filename_search != NULL && hashval_search != NULL)
+		// todo: 
+		if (filename_search != NULL)
 		{
 			char temp_filename[strlen(filename_search)+1];
-			char temp_hashval[strlen(hashval_search)+1];
 			sstrcpy(temp_filename, filename_search, sizeof(temp_filename));
-			sstrcpy(temp_hashval, hashval_search, sizeof(temp_hashval));
+			if (hashval_search != NULL)
+			{
+				char temp_hashval[strlen(hashval_search)+1];
+				sstrcpy(temp_hashval, hashval_search, sizeof(temp_hashval));
+				printf("%s %s\n", temp_filename, temp_hashval);
 
-			if (strcmp(temp_filename, filename) == 0 && strcmp(temp_hashval, hashval) != 0)
-			{
-				printf("modified file\n");
-				break;
-			}
-			else if (strcmp(temp_filename, filename) == 0 && strcmp(temp_hashval, hashval) == 0)
-			{
-				printf("found unmodified\n");
+				if (strcmp(temp_filename, filename) == 0 && strcmp(temp_hashval, hashval) != 0)
+				{
+					modified = 1;
+				}
+				else if (strcmp(temp_filename, filename) == 0 && strcmp(temp_hashval, hashval) == 0)
+				{
+					unmodified = 1;
+				}
 			}
 			else
 			{
-				printf("not found\n");
+				if (strcmp(temp_filename, filename) == 0)
+				{
+					modified = 1;
+				}
 			}
 		}
 	}
+
+	if (modified)
+	{
+		printf("file modified!!\n");
+	}
+	else if (!modified && unmodified)
+	{
+		printf("file found unmodified\n");
+	}
+	else
+	{
+		printf("first appearance\n");
+	}
+
 	free(buffer);
 	fclose(file);
 }
