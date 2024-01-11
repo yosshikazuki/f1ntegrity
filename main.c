@@ -2,9 +2,11 @@
 #include <string.h>
 #include "fparam.h"
 #include "logging.h"
+#include "graphics.h"
 
 int main(int argc, char **argv)
 {
+	init_window();
 	struct Hashtable *file_list = NULL;
 	file_list = create_table();
 	int lflag;

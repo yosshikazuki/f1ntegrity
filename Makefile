@@ -1,9 +1,9 @@
 CC = gcc-13
-CFLAGS = -fverbose-asm -Wall -Werror -Wpedantic $(shell pkg-config --cflags openssl)
-LIBS = $(shell pkg-config --libs --cflags openssl)
+CFLAGS = -fverbose-asm -Wall -Werror -Wpedantic $(shell pkg-config --cflags openssl gtk4)
+LIBS = $(shell pkg-config --libs --cflags openssl gtk4)
 
 TARGET = f1ntegrity
-SOURCES = main.c fparam.c logging.c utility.c
+SOURCES = main.c fparam.c logging.c utility.c graphics.c
 OBJ = $(SOURCES:.c=.o)
 ASSEMBLY_FILE = $(TARGET).s
 
