@@ -135,15 +135,15 @@ void compare_hash(char *filename, char *hashval)
 
 	if (modified)
 	{
-		printf("file modified!!\n");
+		printf("%s\n", MODMSG);
 	}
 	else if (!modified && unmodified)
 	{
-		printf("file found unmodified\n");
+		printf("%s\n", UNMODMSG);
 	}
 	else
 	{
-		printf("first appearance\n");
+		printf("%s\n", DEFMSG);
 	}
 
 	free(buffer);

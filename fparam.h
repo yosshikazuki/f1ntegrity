@@ -6,6 +6,10 @@
 #define MAXLENGTH 100
 #define TABLESIZE 100
 
+#define MODMSG "file modified!!"
+#define UNMODMSG "file found unmodified"
+#define DEFMSG "first appearance"
+
 struct Fparam
 {
 	char filename[MAXLENGTH];

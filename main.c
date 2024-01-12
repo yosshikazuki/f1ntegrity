@@ -6,7 +6,6 @@
 
 int main(int argc, char **argv)
 {
-	init_window();
 	struct Hashtable *file_list = NULL;
 	file_list = create_table();
 	int lflag;
@@ -17,6 +16,7 @@ int main(int argc, char **argv)
 			validate_input(argv[1], NULL);
 			lflag = init_logging();
 			check_file_integrity(file_list, argv[1], NULL, lflag);
+			init_window(argc, argv);
 			break;
 	
 		case 3:
