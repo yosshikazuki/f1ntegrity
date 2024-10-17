@@ -1,0 +1,14 @@
+CC = gcc-13
+CFLAGS = -I/opt/homebrew/Cellar/check/0.15.2/include/ $(shell pkg-config --cflags openssl)
+LDFLAGS = -L/opt/homebrew/Cellar/check/0.15.2/lib/ -lcheck $(shell pkg-config --libs openssl)
+
+TEST_SRC = test.c
+TEST_TARGET = test_executable
+
+all: $(TEST_TARGET)
+
+$(TEST_TARGET): $(TEST_SRC)
+	$(CC) $(CFLAGS) $(LDFLAGS) $< -o $@
+
+clean:
+	rm -f $(TEST_TARGET)
